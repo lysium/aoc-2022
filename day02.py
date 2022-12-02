@@ -1,6 +1,13 @@
 from enum import Enum
 
 
+def read_file_lines(file):
+    with open(file, 'r') as f:
+        for line in f.readlines():
+            line = line.rstrip('\n')
+            yield line
+
+
 class Shape(Enum):
     ROCK = "Rock"
     PAPER = "Paper"
@@ -70,20 +77,17 @@ def main(file):
 
 
 def part1(file):
-    with open(file, "r") as f:
-        total_score = 0
+    total_score = 0
+    for line in read_file_lines(file):
+        (opponent_s, me_s) = line.split(' ')
+        opponent = Shape.from_short_string(opponent_s)
+        me = Shape.from_short_string(me_s)
+        outcome = play(me, opponent)
+        shape_points = points_for_shape(me)
+        outcome_points = points_for_outcome(outcome)
+        total_score = total_score + shape_points + outcome_points
 
-        for line in f.readlines():
-            line = line.replace("\n", "")
-            (opponent_s, me_s) = line.split(' ')
-            opponent = Shape.from_short_string(opponent_s)
-            me = Shape.from_short_string(me_s)
-            outcome = play(me, opponent)
-            shape_points = points_for_shape(me)
-            outcome_points = points_for_outcome(outcome)
-            total_score = total_score + shape_points + outcome_points
-
-        print(total_score)
+    print(total_score)
 
 
 def shape_for_outcome(opponent, outcome):
@@ -102,17 +106,15 @@ def shape_for_outcome(opponent, outcome):
 
 
 def part2(file):
-    with open(file, 'r') as f:
-        total_score = 0
-        for line in f.readlines():
-            line = line.replace("\n", "")
-            (opponent_s, outcome_s) = line.split(' ')
-            opponent = Shape.from_short_string(opponent_s)
-            outcome = Result.from_short_string(outcome_s)
-            me = shape_for_outcome(opponent, outcome)
-            shape_points = points_for_shape(me)
-            outcome_points = points_for_outcome(outcome)
-            total_score += shape_points + outcome_points
+    total_score = 0
+    for line in read_file_lines(file):
+        (opponent_s, outcome_s) = line.split(' ')
+        opponent = Shape.from_short_string(opponent_s)
+        outcome = Result.from_short_string(outcome_s)
+        me = shape_for_outcome(opponent, outcome)
+        shape_points = points_for_shape(me)
+        outcome_points = points_for_outcome(outcome)
+        total_score += shape_points + outcome_points
 
     print(total_score)
 
