@@ -21,4 +21,4 @@ def main(file):
 
 
 if __name__ == "__main__":
-    main("input.txt")
+    main("input01.txt")
