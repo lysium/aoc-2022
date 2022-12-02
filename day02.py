@@ -60,6 +60,10 @@ def points_for_play(play_result):
 
 
 def main(file):
+    part1(file)
+
+
+def part1(file):
     with open(file, "r") as f:
         total_score = 0
 
