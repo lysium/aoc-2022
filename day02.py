@@ -59,7 +59,7 @@ def points_for_shape(shape):
     return points[shape]
 
 
-def points_for_play(play_result):
+def points_for_outcome(play_result):
     points = {Result.LOOSE: 0, Result.DRAW: 3, Result.WIN: 6}
     return points[play_result]
 
@@ -80,7 +80,7 @@ def part1(file):
             me = Shape.from_short_string(me_s)
             outcome = play(me, opponent)
             shape_points = points_for_shape(me)
-            outcome_points = points_for_play(outcome)
+            outcome_points = points_for_outcome(outcome)
             total_score = total_score + shape_points + outcome_points
 
         print(total_score)
@@ -111,7 +111,7 @@ def part2(file):
             outcome = Result.from_short_string(outcome_s)
             me = shape_for_outcome(opponent, outcome)
             shape_points = points_for_shape(me)
-            outcome_points = points_for_play(outcome)
+            outcome_points = points_for_outcome(outcome)
             total_score += shape_points + outcome_points
 
     print(total_score)
