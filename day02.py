@@ -95,8 +95,8 @@ def shape_for_outcome(opponent, outcome):
         return loose_map[opponent]
     else:
         win_map = {Shape.ROCK: Shape.PAPER,
-               Shape.SCISSORS: Shape.ROCK,
-               Shape.PAPER: Shape.SCISSORS}
+                   Shape.SCISSORS: Shape.ROCK,
+                   Shape.PAPER: Shape.SCISSORS}
         return win_map[opponent]
 
 
