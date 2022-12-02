@@ -60,20 +60,20 @@ def points_for_play(play_result):
 
 
 def main(file):
-    f = open(file, "r")
-    total_score = 0
+    with open(file, "r") as f:
+        total_score = 0
 
-    for line in f.readlines():
-        line = line.replace("\n", "")
-        (opponent_s, me_s) = line.split(' ')
-        opponent = Shape.from_short_string(opponent_s)
-        me = Shape.from_short_string(me_s)
-        outcome = play(me, opponent)
-        shape_points = points_for_shape(me)
-        outcome_points = points_for_play(outcome)
-        total_score = total_score + shape_points + outcome_points
+        for line in f.readlines():
+            line = line.replace("\n", "")
+            (opponent_s, me_s) = line.split(' ')
+            opponent = Shape.from_short_string(opponent_s)
+            me = Shape.from_short_string(me_s)
+            outcome = play(me, opponent)
+            shape_points = points_for_shape(me)
+            outcome_points = points_for_play(outcome)
+            total_score = total_score + shape_points + outcome_points
 
-    print(total_score)
+        print(total_score)
 
 
 if __name__ == "__main__":
