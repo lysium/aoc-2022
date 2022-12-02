@@ -23,6 +23,11 @@ class Result(Enum):
     DRAW = "draw"
     LOOSE = "loose"
 
+    @staticmethod
+    def from_short_string(outcome_s):
+        lookup = {"X": Result.LOOSE, "Y": Result.DRAW, "Z": Result.WIN}
+        return lookup[outcome_s]
+
 
 def play(shape1, shape2):
     # Rock defeats Scissors, Scissors defeats Paper, and Paper defeats Rock.
@@ -61,6 +66,7 @@ def points_for_play(play_result):
 
 def main(file):
     part1(file)
+    part2(file)
 
 
 def part1(file):
@@ -78,6 +84,37 @@ def part1(file):
             total_score = total_score + shape_points + outcome_points
 
         print(total_score)
+
+
+def shape_for_outcome(opponent, outcome):
+    if outcome == Result.DRAW:
+        return opponent
+    elif outcome == Result.LOOSE:
+        loose_map = {Shape.ROCK: Shape.SCISSORS,
+                     Shape.SCISSORS: Shape.PAPER,
+                     Shape.PAPER: Shape.ROCK}
+        return loose_map[opponent]
+    else:
+        win_map = {Shape.ROCK: Shape.PAPER,
+               Shape.SCISSORS: Shape.ROCK,
+               Shape.PAPER: Shape.SCISSORS}
+        return win_map[opponent]
+
+
+def part2(file):
+    with open(file, 'r') as f:
+        total_score = 0
+        for line in f.readlines():
+            line = line.replace("\n", "")
+            (opponent_s, outcome_s) = line.split(' ')
+            opponent = Shape.from_short_string(opponent_s)
+            outcome = Result.from_short_string(outcome_s)
+            me = shape_for_outcome(opponent, outcome)
+            shape_points = points_for_shape(me)
+            outcome_points = points_for_play(outcome)
+            total_score += shape_points + outcome_points
+
+    print(total_score)
 
 
 if __name__ == "__main__":
