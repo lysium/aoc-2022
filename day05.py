@@ -11,7 +11,7 @@ def main(file):
 def crane(crates, amount, start, end):
     moved_crates = crates[start][-amount:]
     crates[start] = crates[start][:-amount]
-    moved_crates.reverse()
+    #moved_crates.reverse()
     crates[end].extend(moved_crates)
 
 
