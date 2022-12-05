@@ -1,5 +1,6 @@
 import sys
 from util import read_file_lines
+from enum import Enum
 import re
 
 
@@ -25,24 +26,33 @@ def crate_mover_helper(crates, amount, start, end, byOne):
     return crates
 
 
+class State(Enum):
+    READ_CRATES = 1,
+    READ_INSTRUCTIONS = 2
+
+
 def execute_input(file, crate_mover):
-    crates = [
-        ["C", "Z", "N", "B", "M", "W", "Q", "V"],
-        ["H", "Z", "R", "W", "C", "B"],
-        ["F", "Q", "R", "J"],
-        ["Z", "S", "W", "H", "F", "N", "M", "T"],
-        ["G", "F", "W", "L", "N", "Q", "P"],
-        ["L", "P", "W"],
-        ["V", "B", "D", "R", "G", "C", "Q", "J"],
-        ["Z", "Q", "N", "B", "W"],
-        ["H", "L", "F", "C", "G", "T", "J"],
-    ]
-    # skip reading creates for now
-    read_instructions = False
+    state = State.READ_CRATES
+    crates = []
+    crate_lines = []
     for line in read_file_lines(file):
-        if line == "":
-            read_instructions = True
-        elif read_instructions:
+        if state == State.READ_CRATES:
+            if line == "":
+                stack_labels = re.split('\s+', crate_lines[-1])[1:-1]
+                no_stacks = len(stack_labels)
+                max_stack_height = len(crate_lines) - 1
+                for x in range(no_stacks):
+                    stack = []
+                    for y in range(max_stack_height):
+                        cargo = crate_lines[y][1+4*x]
+                        if cargo != ' ':
+                            stack.append(cargo)
+                    stack.reverse()
+                    crates.append(stack)
+                state = State.READ_INSTRUCTIONS
+            else:
+                crate_lines.append(line)
+        elif state == State.READ_INSTRUCTIONS:
             m = re.match("move (\d+) from (\d+) to (\d+)", line)
             if not m:
                 print(f"no match: {line}")
