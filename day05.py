@@ -8,14 +8,24 @@ def main(file):
     part2(file)
 
 
-def crane(crates, amount, start, end):
+def crate_mover_9001(crates, amount, start, end):
+    return crate_mover_helper(crates, amount, start, end, byOne=False)
+
+
+def crate_mover_9000(crates, amount, start, end):
+    return crate_mover_helper(crates, amount, start, end, byOne=True)
+
+
+def crate_mover_helper(crates, amount, start, end, byOne):
     moved_crates = crates[start][-amount:]
     crates[start] = crates[start][:-amount]
-    #moved_crates.reverse()
+    if byOne:
+        moved_crates.reverse()
     crates[end].extend(moved_crates)
+    return crates
 
 
-def part1(file):
+def execute_input(file, crate_mover):
     crates = [
         ["C", "Z", "N", "B", "M", "W", "Q", "V"],
         ["H", "Z", "R", "W", "C", "B"],
@@ -40,7 +50,7 @@ def part1(file):
             amount = int(m.group(1))
             stack_start = int(m.group(2)) - 1
             stack_end = int(m.group(3)) - 1
-            crane(crates, amount, stack_start, stack_end)
+            crate_mover(crates, amount, stack_start, stack_end)
 
     result = ""
     for crate in crates:
@@ -49,11 +59,12 @@ def part1(file):
     print(result)
 
 
+def part1(file):
+    execute_input(file, crate_mover_9000)
 
 
 def part2(file):
-    for line in read_file_lines(file):
-        pass
+    execute_input(file, crate_mover_9001)
 
 
 if __name__ == "__main__":
