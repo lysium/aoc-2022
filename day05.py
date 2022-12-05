@@ -1,13 +1,12 @@
 import sys
-from util import read_file_lines
 from enum import Enum
 import re
 from dataclasses import dataclass
 
 
 def main(file):
-    part1(file)
-    part2(file)
+    execute_input(file, crate_mover_9000)
+    execute_input(file, crate_mover_9001)
 
 
 def crate_mover_9001(crates, instruction):
@@ -99,14 +98,6 @@ def read_crate_lines(file):
             break
         crate_lines.append(line)
     return crate_lines
-
-
-def part1(file):
-    execute_input(file, crate_mover_9000)
-
-
-def part2(file):
-    execute_input(file, crate_mover_9001)
 
 
 if __name__ == "__main__":
