@@ -3,8 +3,8 @@ from util import read_file_lines
 
 
 def main(file):
-    part1(file)
-    part2(file)
+    execute(file, 4)
+    execute(file, 14)
 
 
 def all_different(buffer):
@@ -17,28 +17,22 @@ def all_different(buffer):
     return True
 
 
-def part1(file):
-    f=open(file, 'r')
-    i=1
-    buffer=[]
+def execute(file, no_distinct):
+    f = open(file, 'r')
+    i = 1
+    buffer = []
     while True:
         c = f.read(1)
         if c == '':
-           raise Exception('nothing found')
+            raise Exception('nothing found')
         buffer.append(c)
-        print(buffer)
-        if len(buffer) == 14:
+        if len(buffer) == no_distinct:
             if all_different(buffer):
                 print(i)
                 return
             else:
                 buffer = buffer[1:]
         i += 1
-
-
-def part2(file):
-    for line in read_file_lines(file):
-        pass
 
 
 if __name__ == "__main__":
