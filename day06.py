@@ -27,7 +27,7 @@ def part1(file):
            raise Exception('nothing found')
         buffer.append(c)
         print(buffer)
-        if len(buffer) == 4:
+        if len(buffer) == 14:
             if all_different(buffer):
                 print(i)
                 return
