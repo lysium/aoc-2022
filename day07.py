@@ -2,7 +2,7 @@ from __future__ import annotations
 import sys
 from util import read_file_lines
 from dataclasses import dataclass
-from anytree import NodeMixin, RenderTree
+from anytree import NodeMixin
 
 
 @dataclass
@@ -44,7 +44,6 @@ class Dir(NodeMixin):
 
 def main(file):
     root = read_dir_tree_from_file(file)
-    # print(RenderTree(root))
     part1(root)
     part2(root)
 
