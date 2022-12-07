@@ -8,7 +8,8 @@ def main(file):
     cwd = root
     for line in read_file_lines(file):
         if line.startswith("$"):
-            cwd = handle_cmd(line, root, cwd)
+            words = line.split(' ')   # 0:"$"
+            cwd = handle_cmd(words[1:], root, cwd)
         else:  # ls output
             if line.startswith("dir"):
                 _, dir_name = line.split(' ')
@@ -28,17 +29,17 @@ def main(file):
     print(min_sorted_dirs)
 
 
-def handle_cmd(line, root, cwd):
-    cmd_arg = line.split(' ')
-    if cmd_arg[1] == "ls":
+def handle_cmd(words, root, cwd):
+    cmd = words[0]
+    if cmd == "ls":
         pass  # implicitly ls output
-    elif cmd_arg[1] == "cd":
-        cwd = do_cwd(root, cwd, cmd_arg)
+    elif cmd == "cd":
+        cwd = do_cwd(root, cwd, words[1:])
     return cwd
 
 
-def do_cwd(root, cwd, cmd_arg):
-    arg = cmd_arg[2]
+def do_cwd(root, cwd, args):
+    arg = args[0]
     if arg == "/":
         cwd = root
     elif arg == "..":
