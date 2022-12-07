@@ -8,22 +8,7 @@ def main(file):
     cwd = root
     for line in read_file_lines(file):
         if line.startswith("$"):
-            cmd_arg = line.split(' ')
-            if cmd_arg[1] == "ls":
-                pass  # implicitly ls output
-            elif cmd_arg[1] == "cd":
-                arg = cmd_arg[2]
-                if arg == "/":
-                    cwd = root
-                elif arg == "..":
-                    cwd = cwd.parent
-                else:
-                    new_cwd = cwd.cd(arg)
-                    if new_cwd:
-                        cwd = new_cwd
-                    else:
-                        new_cwd = Dir(arg, [], [], cwd)
-                        cwd = new_cwd  # or new_cwd.cd(arg) for testing
+            cwd = handle_cmd(line, root, cwd)
         else:  # ls output
             if line.startswith("dir"):
                 _, dir_name = line.split(' ')
@@ -41,6 +26,31 @@ def main(file):
     candidate_dirs = result2(root.dirs, needed)
     min_sorted_dirs = sorted(candidate_dirs, key=lambda cd: cd[1])[0]
     print(min_sorted_dirs)
+
+
+def handle_cmd(line, root, cwd):
+    cmd_arg = line.split(' ')
+    if cmd_arg[1] == "ls":
+        pass  # implicitly ls output
+    elif cmd_arg[1] == "cd":
+        cwd = do_cwd(root, cwd, cmd_arg)
+    return cwd
+
+
+def do_cwd(root, cwd, cmd_arg):
+    arg = cmd_arg[2]
+    if arg == "/":
+        cwd = root
+    elif arg == "..":
+        cwd = cwd.parent
+    else:
+        new_cwd = cwd.cd(arg)
+        if new_cwd:
+            cwd = new_cwd
+        else:
+            new_cwd = Dir(arg, [], [], cwd)
+            cwd = new_cwd  # or new_cwd.cd(arg) for testing
+    return cwd
 
 
 class Dir:
