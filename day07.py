@@ -4,6 +4,33 @@ from util import read_file_lines
 from dataclasses import dataclass
 
 
+@dataclass
+class File:
+    name: str
+    size: int
+
+
+@dataclass
+class Dir:
+    name: str
+    files: [str]
+    dirs: [Dir]
+    parent: Dir
+
+    def cd(self, dir_name):
+        search = [dir for dir in self.dirs if dir.name == dir_name]
+        if len(search) == 0:
+            return None
+        if len(search) > 1:
+            raise Exception(f"many directories: {dir_name}")
+        return search[0]
+
+    def size(self):
+        file_sizes = sum([file.size for file in self.files])
+        dir_sizes = sum([dir.size() for dir in self.dirs if dir])
+        return file_sizes + dir_sizes
+
+
 def main(file):
     root = read_dir_tree_from_file(file)
     part1(root)
@@ -66,34 +93,6 @@ def do_cwd(root, cwd, args):
             new_cwd = Dir(arg, [], [], cwd)
             cwd = new_cwd  # or new_cwd.cd(arg) for testing
     return cwd
-
-
-@dataclass
-class Dir:
-    name: str
-    files: [str]
-    dirs: [Dir]
-    parent: Dir
-
-    def cd(self, dir_name):
-        search = [dir for dir in self.dirs if dir.name == dir_name]
-        if len(search) == 0:
-            return None
-        if len(search) > 1:
-            raise Exception(f"many directories: {dir_name}")
-        return search[0]
-
-    def size(self):
-        file_sizes = sum([file.size for file in self.files])
-        dir_sizes = sum([dir.size() for dir in self.dirs if dir])
-        return file_sizes + dir_sizes
-
-
-@dataclass
-class File:
-    name: str
-    size: int
-
 
 def find_dirs_lt(dirs, needed):
     candidate_dirs = []
