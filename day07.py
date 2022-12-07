@@ -38,12 +38,12 @@ def main(file):
 
 
 def part1(root):
-    print(sum_dir_sizes_le_100000(root.dirs))
+    print(sum_dir_sizes_le_100_000(root.dirs))
 
 
 def part2(root):
-    disk_size = 70000000
-    needed_size = 30000000
+    disk_size = 7_000_0000
+    needed_size = 3_000_0000
     usage = root.size()
     free = disk_size - usage
     needed = needed_size - free
@@ -104,13 +104,13 @@ def find_dirs_lt(dirs, needed):
     return candidate_dirs
 
 
-def sum_dir_sizes_le_100000(dirs):
+def sum_dir_sizes_le_100_000(dirs):
     dir_sizes = 0
     for dir in dirs:
         dir_size = dir.size()
-        if dir_size <= 100000:
+        if dir_size <= 100_000:
             dir_sizes += dir_size
-    return dir_sizes + sum([sum_dir_sizes_le_100000(dir.dirs) for dir in dirs])
+    return dir_sizes + sum([sum_dir_sizes_le_100_000(dir.dirs) for dir in dirs])
 
 
 if __name__ == "__main__":
