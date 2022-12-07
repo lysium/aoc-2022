@@ -4,20 +4,7 @@ from dataclasses import dataclass
 
 
 def main(file):
-    root = Dir("/", [], [], None)
-    cwd = root
-    for line in read_file_lines(file):
-        if line.startswith("$"):
-            words = line.split(' ')   # 0:"$"
-            cwd = handle_cmd(words[1:], root, cwd)
-        else:  # ls output
-            if line.startswith("dir"):
-                _, dir_name = line.split(' ')
-                new_cwd = Dir(dir_name, [], [], cwd)
-                cwd.dirs.append(new_cwd)
-            else:
-                size, file_name = line.split(' ')
-                cwd.files.append(File(file_name, int(size)))
+    root = read_dir_tree_from_file(file)
     print(result1(root.dirs))
     disk_size = 70000000
     needed_size = 30000000
@@ -27,6 +14,24 @@ def main(file):
     candidate_dirs = result2(root.dirs, needed)
     min_sorted_dirs = sorted(candidate_dirs, key=lambda cd: cd[1])[0]
     print(min_sorted_dirs)
+
+
+def read_dir_tree_from_file(file):
+    root = Dir("/", [], [], None)
+    cwd = root
+    for line in read_file_lines(file):
+        if line.startswith("$"):
+            words = line.split(' ')  # 0:"$"
+            cwd = handle_cmd(words[1:], root, cwd)
+        else:  # ls output
+            if line.startswith("dir"):
+                _, dir_name = line.split(' ')
+                new_cwd = Dir(dir_name, [], [], cwd)
+                cwd.dirs.append(new_cwd)
+            else:
+                size, file_name = line.split(' ')
+                cwd.files.append(File(file_name, int(size)))
+    return root
 
 
 def handle_cmd(words, root, cwd):
