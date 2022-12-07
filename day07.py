@@ -1,3 +1,4 @@
+from __future__ import annotations
 import sys
 from util import read_file_lines
 from dataclasses import dataclass
@@ -59,12 +60,12 @@ def do_cwd(root, cwd, args):
     return cwd
 
 
+@dataclass
 class Dir:
-    def __init__(self, name, files, dirs, parent):
-        self.name = name       # str
-        self.files = files     # [str]
-        self.dirs = dirs       # [Dir]
-        self.parent = parent   # Dir
+    name: str
+    files: [str]
+    dirs: [Dir]
+    parent: Dir
 
     def cd(self, dir_name):
         search = [dir for dir in self.dirs if dir.name == dir_name]
