@@ -59,7 +59,7 @@ def read_dir_tree_from_file(file):
         if line.startswith("$"):
             words = line.split(' ')  # 0:"$"
             cwd = handle_cmd(words[1:], root, cwd)
-        else:  # ls output
+        else:  # we only have ls output
             if line.startswith("dir"):
                 _, dir_name = line.split(' ')
                 new_cwd = Dir(dir_name, [], [], cwd)
@@ -93,6 +93,7 @@ def do_cwd(root, cwd, args):
             new_cwd = Dir(arg, [], [], cwd)
             cwd = new_cwd  # or new_cwd.cd(arg) for testing
     return cwd
+
 
 def find_dirs_lt(dirs, needed):
     candidate_dirs = []
