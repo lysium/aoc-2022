@@ -4,8 +4,43 @@ from dataclasses import dataclass
 
 
 def main(file):
-    part1(file)
-    part2(file)
+    root = Dir("/", [], [], None)
+    cwd = root
+    for line in read_file_lines(file):
+        if line.startswith("$"):
+            cmd_arg = line.split(' ')
+            if cmd_arg[1] == "ls":
+                pass  # implicitly ls output
+            elif cmd_arg[1] == "cd":
+                arg = cmd_arg[2]
+                if arg == "/":
+                    cwd = root
+                elif arg == "..":
+                    cwd = cwd.parent
+                else:
+                    new_cwd = cwd.cd(arg)
+                    if new_cwd:
+                        cwd = new_cwd
+                    else:
+                        new_cwd = Dir(arg, [], [], cwd)
+                        cwd = new_cwd  # or new_cwd.cd(arg) for testing
+        else:  # ls output
+            if line.startswith("dir"):
+                _, dir_name = line.split(' ')
+                new_cwd = Dir(dir_name, [], [], cwd)
+                cwd.dirs.append(new_cwd)
+            else:
+                size, file_name = line.split(' ')
+                cwd.files.append(File(file_name, int(size)))
+    print(result1(root.dirs))
+    disk_size = 70000000
+    needed_size = 30000000
+    usage = root.size()
+    free = disk_size - usage
+    needed = needed_size - free
+    candidate_dirs = result2(root.dirs, needed)
+    min_sorted_dirs = sorted(candidate_dirs, key=lambda cd: cd[1])[0]
+    print(min_sorted_dirs)
 
 
 class Dir:
@@ -35,56 +70,6 @@ class File:
     size: int
 
 
-def part1(file):
-    """
-    $ cd /
-$ ls
-dir bzgf
-199775 dngdnvv.qdf
-dir fhhwv
-dir gzlpvdhd
-dir htczftcn
-"""
-    fs = Dir("/", [], [], None)
-    cwd = fs
-    for line in read_file_lines(file):
-        if line.startswith("$"):
-            cmd_arg = line.split(' ')
-            if cmd_arg[1] == "ls":
-                pass  # implicitly ls output
-            elif cmd_arg[1] == "cd":
-                arg = cmd_arg[2]
-                if arg == "/":
-                    cwd = fs
-                elif arg == "..":
-                    cwd = cwd.parent
-                else:
-                    new_cwd = cwd.cd(arg)
-                    if new_cwd:
-                        cwd = new_cwd
-                    else:
-                        new_cwd = Dir(arg, [], [], cwd)
-                        cwd = new_cwd   # or new_cwd.cd(arg) for testing
-        else:        # ls output
-            if line.startswith("dir"):
-                _, dir_name = line.split(' ')
-                new_cwd = Dir(dir_name, [], [], cwd)
-                cwd.dirs.append(new_cwd)
-            else:
-                size, file_name = line.split(' ')
-                cwd.files.append(File(file_name, int(size)))
-    print(result1(fs.dirs))
-
-    disk_size = 70000000
-    needed_size = 30000000
-    usage = fs.size()
-    free = disk_size - usage
-    needed = needed_size - free
-    candidate_dirs = result2(fs.dirs, needed)
-    min_sorted_dirs = sorted(candidate_dirs, key=lambda cd: cd[1])[0]
-    print(min_sorted_dirs)
-
-
 def result2(dirs, needed):
     candidate_dirs = []
     for dir in dirs:
@@ -95,8 +80,6 @@ def result2(dirs, needed):
     return candidate_dirs
 
 
-
-
 def result1(dirs):
     dir_sizes = 0
     for dir in dirs:
@@ -104,12 +87,6 @@ def result1(dirs):
         if dir_size <= 100000:
             dir_sizes += dir_size
     return dir_sizes + sum([result1(dir.dirs) for dir in dirs])
-
-
-
-def part2(file):
-    for line in read_file_lines(file):
-        pass
 
 
 if __name__ == "__main__":
