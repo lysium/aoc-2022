@@ -2,6 +2,7 @@ from __future__ import annotations
 import sys
 from util import read_file_lines
 from dataclasses import dataclass
+from anytree import NodeMixin, RenderTree
 
 
 @dataclass
@@ -10,15 +11,22 @@ class File:
     size: int
 
 
-@dataclass
-class Dir:
+class Dir(NodeMixin):
     name: str
     files: [str]
-    dirs: [Dir]
-    parent: Dir
+
+    def __init__(self, name, files=None, parent=None, children=None):
+        self.name = name
+        self.files = files if files else []
+        self.parent = parent
+        if children:
+            self.children = children
+
+    def dirs(self):
+        return self.children
 
     def cd(self, dir_name):
-        search = [dir for dir in self.dirs if dir.name == dir_name]
+        search = [dir for dir in self.dirs() if dir.name == dir_name]
         if len(search) == 0:
             return None
         if len(search) > 1:
@@ -27,18 +35,22 @@ class Dir:
 
     def size(self):
         file_sizes = sum([file.size for file in self.files])
-        dir_sizes = sum([dir.size() for dir in self.dirs if dir])
+        dir_sizes = sum([dir.size() for dir in self.dirs() if dir])
         return file_sizes + dir_sizes
+
+    def __repr__(self):
+        return self.name
 
 
 def main(file):
     root = read_dir_tree_from_file(file)
+    # print(RenderTree(root))
     part1(root)
     part2(root)
 
 
 def part1(root):
-    print(sum_dir_sizes_le_100_000(root.dirs))
+    print(sum_dir_sizes_le_100_000(root.dirs()))
 
 
 def part2(root):
@@ -47,13 +59,13 @@ def part2(root):
     usage = root.size()
     free = disk_size - usage
     needed = needed_size - free
-    candidate_dirs = find_dirs_lt(root.dirs, needed)
+    candidate_dirs = find_dirs_lt(root.dirs(), needed)
     min_sorted_dirs = sorted(candidate_dirs, key=lambda cd: cd[1])[0]
     print(min_sorted_dirs)
 
 
 def read_dir_tree_from_file(file):
-    root = Dir("/", [], [], None)
+    root = Dir("/")
     cwd = root
     for line in read_file_lines(file):
         if line.startswith("$"):
@@ -62,8 +74,7 @@ def read_dir_tree_from_file(file):
         else:  # we only have ls output
             if line.startswith("dir"):
                 _, dir_name = line.split(' ')
-                new_cwd = Dir(dir_name, [], [], cwd)
-                cwd.dirs.append(new_cwd)
+                new_cwd = Dir(dir_name, parent=cwd)
             else:
                 size, file_name = line.split(' ')
                 cwd.files.append(File(file_name, int(size)))
@@ -86,12 +97,12 @@ def do_cwd(root, cwd, args):
     elif arg == "..":
         cwd = cwd.parent
     else:
-        new_cwd = cwd.cd(arg)
-        if new_cwd:
-            cwd = new_cwd
+        maybe_dir = [c for c in cwd.dirs() if c.name == arg]
+        if maybe_dir:
+            cwd = maybe_dir[0]
         else:
-            new_cwd = Dir(arg, [], [], cwd)
-            cwd = new_cwd  # or new_cwd.cd(arg) for testing
+            new_cwd = Dir(arg, parent=cwd)
+            cwd = new_cwd
     return cwd
 
 
@@ -101,7 +112,7 @@ def find_dirs_lt(dirs, needed):
         dir_size = dir.size()
         if dir_size >= needed:
             candidate_dirs.append((dir.name, dir_size))
-        candidate_dirs.extend(find_dirs_lt(dir.dirs, needed))
+        candidate_dirs.extend(find_dirs_lt(dir.dirs(), needed))
     return candidate_dirs
 
 
@@ -111,7 +122,7 @@ def sum_dir_sizes_le_100_000(dirs):
         dir_size = dir.size()
         if dir_size <= 100_000:
             dir_sizes += dir_size
-    return dir_sizes + sum([sum_dir_sizes_le_100_000(dir.dirs) for dir in dirs])
+    return dir_sizes + sum([sum_dir_sizes_le_100_000(dir.dirs()) for dir in dirs])
 
 
 if __name__ == "__main__":
