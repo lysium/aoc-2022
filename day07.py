@@ -75,6 +75,27 @@ dir htczftcn
                 cwd.files.append(File(file_name, int(size)))
     print(result1(fs.dirs))
 
+    disk_size = 70000000
+    needed_size = 30000000
+    usage = fs.size()
+    free = disk_size - usage
+    needed = needed_size - free
+    candidate_dirs = result2(fs.dirs, needed)
+    min_sorted_dirs = sorted(candidate_dirs, key=lambda cd: cd[1])[0]
+    print(min_sorted_dirs)
+
+
+def result2(dirs, needed):
+    candidate_dirs = []
+    for dir in dirs:
+        dir_size = dir.size()
+        if dir_size >= needed:
+            candidate_dirs.append((dir.name, dir_size))
+        candidate_dirs.extend(result2(dir.dirs, needed))
+    return candidate_dirs
+
+
+
 
 def result1(dirs):
     dir_sizes = 0
