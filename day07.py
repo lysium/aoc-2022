@@ -59,7 +59,7 @@ def part2(root):
     free = disk_size - usage
     needed = needed_size - free
     candidate_dirs = find_dirs_lt(root.dirs(), needed)
-    min_sorted_dirs = sorted(candidate_dirs, key=lambda cd: cd[1])[0]
+    min_sorted_dirs = min(candidate_dirs, key=lambda cd: cd[1])
     print(min_sorted_dirs)
 
 
