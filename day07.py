@@ -6,13 +6,21 @@ from dataclasses import dataclass
 
 def main(file):
     root = read_dir_tree_from_file(file)
-    print(result1(root.dirs))
+    part1(root)
+    part2(root)
+
+
+def part1(root):
+    print(sum_dir_sizes_le_100000(root.dirs))
+
+
+def part2(root):
     disk_size = 70000000
     needed_size = 30000000
     usage = root.size()
     free = disk_size - usage
     needed = needed_size - free
-    candidate_dirs = result2(root.dirs, needed)
+    candidate_dirs = find_dirs_lt(root.dirs, needed)
     min_sorted_dirs = sorted(candidate_dirs, key=lambda cd: cd[1])[0]
     print(min_sorted_dirs)
 
@@ -87,23 +95,23 @@ class File:
     size: int
 
 
-def result2(dirs, needed):
+def find_dirs_lt(dirs, needed):
     candidate_dirs = []
     for dir in dirs:
         dir_size = dir.size()
         if dir_size >= needed:
             candidate_dirs.append((dir.name, dir_size))
-        candidate_dirs.extend(result2(dir.dirs, needed))
+        candidate_dirs.extend(find_dirs_lt(dir.dirs, needed))
     return candidate_dirs
 
 
-def result1(dirs):
+def sum_dir_sizes_le_100000(dirs):
     dir_sizes = 0
     for dir in dirs:
         dir_size = dir.size()
         if dir_size <= 100000:
             dir_sizes += dir_size
-    return dir_sizes + sum([result1(dir.dirs) for dir in dirs])
+    return dir_sizes + sum([sum_dir_sizes_le_100000(dir.dirs) for dir in dirs])
 
 
 if __name__ == "__main__":
