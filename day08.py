@@ -19,22 +19,39 @@ class Forest:
 
 def is_visible(forest, x, y, dx, dy):
     tree = forest.trees[y][x]
-    print(f'checking @({x},{y}) = {tree}  in direction ({dx},{dy})')
     x += dx
     y += dy
     while (0 <= x < forest.width) and (0 <= y < forest.height):
         tree2 = forest.trees[y][x]
-        print(f' < @({x},{y}) = {tree2}?', end=' ')
         if tree2 >= tree:
-            print("true, eg. not visible")
             return False
         else:
-            print("false")
-            #tree = tree2
+            pass
         x += dx
         y += dy
-    print("is visible")
     return True
+
+
+def viewing_distance(forest, x, y, dx, dy):
+    tree = forest.trees[y][x]
+    print(f'checking @({x},{y}) = {tree}  in direction ({dx},{dy})')
+    x += dx
+    y += dy
+    distance = 0
+    while (0 <= x < forest.width) and (0 <= y < forest.height):
+        tree2 = forest.trees[y][x]
+        print(f' < @({x},{y}) = {tree2}?', end=' ')
+        if tree2 >= tree:
+            print(f"true, eg. not visible ({distance})")
+            return distance + 1
+        else:
+            print("true")
+            pass
+        x += dx
+        y += dy
+        distance += 1
+    print(f" distance: {distance}")
+    return distance
 
 
 def part1(file):
@@ -63,6 +80,13 @@ def part1(file):
                 count += 1
                 print(f"new count: {count}")
     print(count)
+
+    max_scenic = 0
+    for x in range(width):
+        for y in range(height):
+            scenic_score = viewing_distance(forest, x, y, 0, 1) * viewing_distance(forest, x, y, 0, -1) * viewing_distance(forest, x, y, 1, 0) * viewing_distance(forest, x, y, -1, 0)
+            max_scenic = max(max_scenic, scenic_score)
+    print(max_scenic)
 
 
 
