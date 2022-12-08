@@ -2,12 +2,6 @@ from __future__ import annotations
 import sys
 from util import read_file_lines
 from dataclasses import dataclass
-from anytree import NodeMixin
-
-
-def main(file):
-    part1(file)
-    part2(file)
 
 
 @dataclass
@@ -15,6 +9,41 @@ class Forest:
     trees: [int]
     width: int
     height: int
+
+
+def main(file):
+    forest = read_forest_from_file(file)
+    print(count_visible_trees(forest))
+    print(max_scenic_score(forest))
+
+
+def max_scenic_score(forest):
+    max_scenic = 0
+    for x in range(forest.width):
+        for y in range(forest.height):
+            score = scenic_score(forest, x, y)
+            max_scenic = max(max_scenic, score)
+    return max_scenic
+
+
+def scenic_score(forest, x, y):
+    score = viewing_distance(forest, x, y, 0, 1) * \
+            viewing_distance(forest, x, y, 0, -1) * \
+            viewing_distance(forest, x, y, 1, 0) * \
+            viewing_distance(forest, x, y, -1, 0)
+    return score
+
+
+def count_visible_trees(forest):
+    count = 0
+    for x in range(forest.width):
+        for y in range(forest.height):
+            if is_visible(forest, x, y, 0, 1) or \
+                    is_visible(forest, x, y, 0, -1) or \
+                    is_visible(forest, x, y, 1, 0) or \
+                    is_visible(forest, x, y, -1, 0):
+                count += 1
+    return count
 
 
 def is_visible(forest, x, y, dx, dy):
@@ -25,8 +54,6 @@ def is_visible(forest, x, y, dx, dy):
         tree2 = forest.trees[y][x]
         if tree2 >= tree:
             return False
-        else:
-            pass
         x += dx
         y += dy
     return True
@@ -47,42 +74,18 @@ def viewing_distance(forest, x, y, dx, dy):
     return distance
 
 
-def part1(file):
+def read_forest_from_file(file):
     forest = []
     width = None
     for line in read_file_lines(file):
         forest_row = [int(tree) for tree in line]
         if width:
-            assert(len(forest_row) == width)
+            assert (len(forest_row) == width)
         else:
             width = len(forest_row)
         forest.append(forest_row)
     height = len(forest)
-    forest = Forest(forest, width, height)
-
-    # naive
-    count = 0
-    for x in range(width):
-        for y in range(height):
-            if is_visible(forest, x, y, 0, 1) or \
-                    is_visible(forest, x, y, 0, -1) or \
-                    is_visible(forest, x, y, 1, 0) or \
-                    is_visible(forest, x, y, -1, 0):
-                count += 1
-    print(count)
-
-    max_scenic = 0
-    for x in range(width):
-        for y in range(height):
-            scenic_score = viewing_distance(forest, x, y, 0, 1) * viewing_distance(forest, x, y, 0, -1) * viewing_distance(forest, x, y, 1, 0) * viewing_distance(forest, x, y, -1, 0)
-            max_scenic = max(max_scenic, scenic_score)
-    print(max_scenic)
-
-
-
-def part2(file):
-    for line in read_file_lines(file):
-        pass
+    return Forest(forest, width, height)
 
 
 if __name__ == "__main__":
