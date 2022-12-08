@@ -1,5 +1,8 @@
+from __future__ import annotations
 import sys
 from util import read_file_lines
+from dataclasses import dataclass
+from anytree import NodeMixin
 
 
 def main(file):
