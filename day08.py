@@ -38,14 +38,12 @@ def viewing_distance(forest, x, y, dx, dy):
     y += dy
     distance = 0
     while (0 <= x < forest.width) and (0 <= y < forest.height):
+        distance += 1
         tree2 = forest.trees[y][x]
         if tree2 >= tree:
-            return distance + 1
-        else:
-            pass
+            break
         x += dx
         y += dy
-        distance += 1
     return distance
 
 
