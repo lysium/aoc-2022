@@ -3,7 +3,6 @@ import sys
 from util import read_file_lines
 from dataclasses import dataclass
 from enum import Enum
-from anytree import NodeMixin
 from functools import total_ordering
 import os
 import re
@@ -34,15 +33,15 @@ class Pos:
 
 
 class Direction(Enum):
-    UP='U'
-    DOWN='D'
-    RIGHT='R'
-    LEFT='L'
+    UP = 'U'
+    DOWN = 'D'
+    RIGHT = 'R'
+    LEFT = 'L'
 
 
 def move(pos: Pos, dir: Direction):
     if dir == Direction.UP:
-        dx, dy = 0,-1
+        dx, dy = 0, -1
     elif dir == Direction.DOWN:
         dx, dy = 0, 1
     elif dir == Direction.LEFT:
