@@ -67,7 +67,7 @@ def signum(x):
 
 
 def move_tail(head, tail):
-    """move tail towards head, assuming head and tail are just not adjacent."""
+    """move tail towards head, assuming head and tail are not adjacent."""
     dx = head.x - tail.x
     dy = head.y - tail.y
 
