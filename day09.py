@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from enum import Enum
 from anytree import NodeMixin
 from functools import total_ordering
+import os
+import re
 
 
 def main(file):
@@ -131,6 +133,11 @@ def part2(file):
 
 
 if __name__ == "__main__":
-    day = 9
-    input_file = f"input{day:02}.txt" if len(sys.argv) <= 1 else sys.argv[1]
+    this_script_name = os.path.basename(sys.argv[0])
+    m = re.search('(\\d+)\\.py', this_script_name)
+    if m:
+        day = int(m.group(1))
+        input_file = f"input{day:02}.txt"
+    else:
+        input_file = sys.argv[1]
     main(input_file)
