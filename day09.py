@@ -78,15 +78,20 @@ def move_tail(head, tail):
         return Pos(head.x + (-signum(dx)), head.y + (-signum(dy)))
 
 
+def parse_line(line):
+    direction, amount = line.split(' ')
+    direction = Direction(direction)
+    amount = int(amount)
+    return amount, direction
+
+
 def part1(file):
     head = Pos(0, 0)
     tail = Pos(0, 0)
     visited = set()
 
     for line in read_file_lines(file):
-        direction, amount = line.split(' ')
-        direction = Direction(direction)
-        amount = int(amount)
+        amount, direction = parse_line(line)
         for i in range(amount):
             head = move(head, direction)
             if not is_adjacent(head, tail):
@@ -117,9 +122,7 @@ def part2(file):
     visited = set()
 
     for line in read_file_lines(file):
-        direction, amount = line.split(' ')
-        direction = Direction(direction)
-        amount = int(amount)
+        amount, direction = parse_line(line)
         for _ in range(amount):
             new_rope = [move(rope[0], direction)]
             for knot in rope[1:]:
