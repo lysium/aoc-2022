@@ -96,11 +96,12 @@ def part1(file):
 
 
 def print_rope(rope):
+    extra = 2  # extra space around printed grid
     min_pos = Pos(min([knot.x for knot in rope]), min([knot.y for knot in rope]))
     max_pos = Pos(max([knot.x for knot in rope]), max([knot.y for knot in rope]))
     print(f"min: {min_pos}, max: {max_pos}")
-    for y in range(min_pos.y-2, max_pos.y+3):
-        for x in range(min_pos.x-2, max_pos.x+3):
+    for y in range(min_pos.y-extra, max_pos.y+1+extra):
+        for x in range(min_pos.x-extra, max_pos.x+1+extra):
             maybe_knot = [i for i, knot in enumerate(rope) if knot == Pos(x, y)]
             if maybe_knot:
                 print(min(maybe_knot), end='')
