@@ -19,13 +19,16 @@ class Pos:
     y: int
 
     def __hash__(self):
-        return 113 * self.x + self.y
+        return 1009 * self.x + self.y
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
     def __lt__(self, other):
         return self.x < other.x and self.y < other.y
+
+    def __repr__(self):
+        return f"({self.x},{self.y})"
 
 
 class Direction(Enum):
@@ -53,21 +56,25 @@ def is_adjacent(pos1, pos2):
     return abs(pos1.x - pos2.x) <= 1 and abs(pos1.y - pos2.y) <= 1
 
 
+def signum(x):
+    if x > 0:
+        return 1
+    if x < 0:
+        return -1
+    return 0
+
+
 def move_tail(head, tail):
     """move tail towards head, assuming head and tail are just not adjacent."""
     dx = head.x - tail.x
     dy = head.y - tail.y
 
-    if dx == 2:  # tail goes LEFT of head
-        return Pos(head.x - 1, head.y + 0)
-    elif dx == -2:  # tail goes RIGHT of head
-        return Pos(head.x + 1, head.y + 0)
-    elif dy == 2:  # tail goes UP of head
-        return Pos(head.x + 0, head.y - 1)
-    elif dy == -2: # tail goes DOWN of head
-        return Pos(head.x + 0, head.y + 1)
-    else:
-        raise Exception(f'unexcepted dx/dy: {dx}, {dy}')
+    if abs(dx) > abs(dy):
+        return Pos(head.x + (-signum(dx) * 1), head.y)
+    elif abs(dx) < abs(dy):
+        return Pos(head.x, head.y + (-signum(dy) * 1))
+    else:  # abs(dy) == abs(dx):
+        return Pos(head.x + (-signum(dx)), head.y + (-signum(dy)))
 
 
 def part1(file):
@@ -88,9 +95,38 @@ def part1(file):
     print(len(visited))
 
 
+def print_rope(rope):
+    min_pos = Pos(min([knot.x for knot in rope]), min([knot.y for knot in rope]))
+    max_pos = Pos(max([knot.x for knot in rope]), max([knot.y for knot in rope]))
+    print(f"min: {min_pos}, max: {max_pos}")
+    for y in range(min_pos.y-2, max_pos.y+3):
+        for x in range(min_pos.x-2, max_pos.x+3):
+            maybe_knot = [i for i, knot in enumerate(rope) if knot == Pos(x, y)]
+            if maybe_knot:
+                print(min(maybe_knot), end='')
+            else:
+                print('.', end='')
+        print()
+
+
 def part2(file):
+    rope_length = 10
+    rope = [Pos(0, 0) for _ in range(rope_length)]
+    visited = set()
+
     for line in read_file_lines(file):
-        pass
+        direction, amount = line.split(' ')
+        direction = Direction(direction)
+        amount = int(amount)
+        for _ in range(amount):
+            new_rope = [move(rope[0], direction)]
+            for knot in rope[1:]:
+                if not is_adjacent(new_rope[-1], knot):
+                    knot = move_tail(new_rope[-1], knot)
+                new_rope.append(knot)
+            rope = new_rope
+            visited.add(rope[-1])
+    print(len(visited))
 
 
 if __name__ == "__main__":
