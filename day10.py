@@ -39,7 +39,7 @@ def instructions_from_file(file):
 
 
 def compute(register, instructions):
-    log = []   # value of register at the beginning of the Xth cycle
+    log = [register]   # value of register at the beginning of the Xth cycle
 
     def tick():
         log.append(register)
@@ -56,15 +56,37 @@ def compute(register, instructions):
     return log
 
 
+def sprite_is_visible(cycle, position):
+    column = (cycle - 1) % 40
+    return position-1 <= column <= position+1
+
+
+def draw_crt(log):
+    crt = ""
+    sprite = "###"
+    position = 0
+    for cycle, register in enumerate(log[2:], 1):
+        if sprite_is_visible(cycle, position):
+            crt += "#"
+        else:
+            crt += "."
+        if cycle % 40 == 0:
+            crt += "\n"
+        position = register
+
+    return crt
+
+
 def part1(file):
     register = 1
     instructions = instructions_from_file(file)
     log = compute(register, instructions)
     signal_strength = 0
-    for i in range(19, 220, 40):
-        print(f"{i+1} \t {log[i]} \t {log[i] * (i+1)}")
-        signal_strength += log[i] * (i+1)
+    for i in range(20, 221, 40):
+        print(f"{i} \t {log[i]} \t {log[i] * i}")
+        signal_strength += log[i] * i
     print(signal_strength)
+    print(draw_crt(log))
 
 
 def part2(file):
