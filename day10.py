@@ -56,15 +56,15 @@ def compute(register, instructions):
     return log
 
 
-def sprite_is_visible(cycle, position):
-    column = (cycle - 1) % 40
-    return position-1 <= column <= position+1
-
-
 def draw_crt(log):
     crt = ""
-    sprite = "###"
+    # sprite = "###"
     position = 0
+
+    def sprite_is_visible(cycle, position):
+        column = (cycle - 1) % 40
+        return position-1 <= column <= position+1
+
     for cycle, register in enumerate(log[2:], 1):
         if sprite_is_visible(cycle, position):
             crt += "#"
