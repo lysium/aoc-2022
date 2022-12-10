@@ -2,15 +2,9 @@ from __future__ import annotations
 import sys
 from util import read_file_lines
 from dataclasses import dataclass
-from anytree import NodeMixin
 from enum import Enum
 import os
 import re
-
-
-def main(file):
-    part1(file)
-    part2(file)
 
 
 class Cmd(Enum):
@@ -77,7 +71,7 @@ def draw_crt(log):
     return crt
 
 
-def part1(file):
+def main(file):
     register = 1
     instructions = instructions_from_file(file)
     log = compute(register, instructions)
@@ -87,11 +81,6 @@ def part1(file):
         signal_strength += log[i] * i
     print(signal_strength)
     print(draw_crt(log))
-
-
-def part2(file):
-    for line in read_file_lines(file):
-        pass
 
 
 if __name__ == "__main__":
