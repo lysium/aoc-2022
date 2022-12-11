@@ -25,7 +25,7 @@ def part2(file):
 if __name__ == "__main__":
     this_script_name = os.path.basename(sys.argv[0])
     m = re.search('(\\d+)\\.py', this_script_name)
-    if m:
+    if len(sys.argv) <= 1 and m:
         day = int(m.group(1))
         input_file = f"input{day:02}.txt"
     else:
