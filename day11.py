@@ -69,6 +69,10 @@ def debug(arg):
         print(arg)
 
 
+def max2(counts):
+    return sorted(counts, reverse=True)[0:2]
+
+
 def part1(file):
     monkeys = read_monkeys_from_file(file)
     counts = [0 for _ in monkeys]
@@ -94,10 +98,8 @@ def part1(file):
     for monkey, count in enumerate(counts):
         debug(f"Monkey {monkey}: {count}")
         pass
-    max_count = max(counts)
-    counts.remove(max_count)
-    max2_count = max(counts)
-    print(max_count * max2_count)
+    max1_count, max2_count = max2(counts)
+    print(max1_count * max2_count)
 
 
 def part2(file):
@@ -124,10 +126,8 @@ def part2(file):
             for monkey, count in enumerate(counts):
                 debug(f"Monkey {monkey}: {count}")
 
-    max_count = max(counts)
-    counts.remove(max_count)
-    max2_count = max(counts)
-    print(max_count * max2_count)
+    max1_count, max2_count = max2(counts)
+    print(max1_count * max2_count)
 
 
 def read_monkeys_from_file(file):
