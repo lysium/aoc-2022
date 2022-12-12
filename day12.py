@@ -16,13 +16,16 @@ def main(file):
     print(length)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Map:
     map: [str]
-    width: int
-    height: int
+    dimension: Vec
     START = "S"
     END = "E"
+
+    @staticmethod
+    def create(map):
+        return Map(map, Vec(len(map[0]), len(map)))
 
     def __getitem__(self, item):
         if item.__class__ == Pos:
@@ -46,7 +49,7 @@ RIGHT = Vec(1, 0)
 
 
 def find_start(map):
-    for y in range(map.height):
+    for y in range(map.dimension.dy):
         x = map[y].find(Map.START)
         if x != -1:
             return Pos(x, y)
@@ -54,7 +57,7 @@ def find_start(map):
 
 def find_a(map):
     result = []
-    for y in range(map.height):
+    for y in range(map.dimension.dy):
         for x, c in enumerate(map[y]):
             if c == 'a' or c == 'S':
                 result.append(Pos(x, y))
@@ -62,7 +65,7 @@ def find_a(map):
 
 
 def can_go(map, start, end):
-    if 0 <= end.x < map.width and 0 <= end.y < map.height:
+    if 0 <= end.x < map.dimension.dx and 0 <= end.y < map.dimension.dy:
         start_altitude = map.altitude(start)
         end_altitude = map.altitude(end)
         return end_altitude - start_altitude <= 1
@@ -82,9 +85,9 @@ def part2(map):
     return length
 
 
-def find_shortest_path(map, positions):
-    trails = [[pos] for pos in positions]
-    visited = set(positions)
+def find_shortest_path(map, start_positions):
+    trails = [[pos] for pos in start_positions]
+    visited = set(start_positions)
     length = None
     while not length:
         new_trails = []
@@ -105,11 +108,8 @@ def find_shortest_path(map, positions):
 
 
 def read_map_from_file(file):
-    map = []
-    for line in read_file_lines(file):
-        map.append(line)
-    map = Map(map, len(map[0]), len(map))
-    return map
+    map = [line for line in read_file_lines(file)]
+    return Map.create(map)
 
 
 if __name__ == "__main__":
