@@ -9,9 +9,11 @@ from vec import Vec
 
 
 def main(file):
-    length = part1(file)
+    map = read_map_from_file(file)
+    length = part1(map)
     print(length)
-    part2(file)
+    length = part2(map)
+    print(length)
 
 
 @dataclass
@@ -50,6 +52,15 @@ def find_start(map):
             return Pos(x, y)
 
 
+def find_a(map):
+    result = []
+    for y in range(map.height):
+        for x, c in enumerate(map[y]):
+            if c == 'a' or c == 'S':
+                result.append(Pos(x, y))
+    return result
+
+
 def can_go(map, start, end):
     if 0 <= end.x < map.width and 0 <= end.y < map.height:
         start_altitude = map.altitude(start)
@@ -59,17 +70,21 @@ def can_go(map, start, end):
         return False
 
 
-def part1(file):
-    map = read_map_from_file(file)
-
+def part1(map):
     start = find_start(map)
-    length = find_shortest_path(map, start)
+    length = find_shortest_path(map, [start])
     return length
 
 
-def find_shortest_path(map, start):
-    trails = [[start]]
-    visited = {start}
+def part2(map):
+    a_positions = find_a(map)
+    length = find_shortest_path(map, a_positions)
+    return length
+
+
+def find_shortest_path(map, positions):
+    trails = [[pos] for pos in positions]
+    visited = set(positions)
     length = None
     while not length:
         new_trails = []
@@ -95,11 +110,6 @@ def read_map_from_file(file):
         map.append(line)
     map = Map(map, len(map[0]), len(map))
     return map
-
-
-def part2(file):
-    for line in read_file_lines(file):
-        pass
 
 
 if __name__ == "__main__":
