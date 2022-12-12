@@ -1,9 +1,9 @@
 from __future__ import annotations
 import sys
+
+from pos import Pos
 from util import read_file_lines
-from dataclasses import dataclass
 from enum import Enum
-from functools import total_ordering
 import os
 import re
 
@@ -11,25 +11,6 @@ import re
 def main(file):
     part1(file)
     part2(file)
-
-
-@dataclass
-@total_ordering
-class Pos:
-    x: int
-    y: int
-
-    def __hash__(self):
-        return 1009 * self.x + self.y
-
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
-
-    def __lt__(self, other):
-        return self.x < other.x and self.y < other.y
-
-    def __repr__(self):
-        return f"({self.x},{self.y})"
 
 
 class Direction(Enum):
