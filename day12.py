@@ -9,7 +9,8 @@ from vec import Vec
 
 
 def main(file):
-    part1(file)
+    length = part1(file)
+    print(length)
     part2(file)
 
 
@@ -59,22 +60,23 @@ def can_go(map, start, end):
 
 
 def part1(file):
-    map = []
-    for line in read_file_lines(file):
-        map.append(line)
-    map = Map(map, len(map[0]), len(map))
+    map = read_map_from_file(file)
 
     start = find_start(map)
-    print(f"Start is at {start}")
-    trails = [[start]]
+    length = find_shortest_path(map, start)
+    return length
 
-    visited = set([start])
-    while True:
+
+def find_shortest_path(map, start):
+    trails = [[start]]
+    visited = {start}
+    length = None
+    while not length:
         new_trails = []
         for trail in trails:
             head = trail[-1]
             if map[head] == map.END:
-                print(len(trail) - 1)  # w/o START
+                length = len(trail) - 1  # w/o START
                 break
             for dir in [UP, DOWN, RIGHT, LEFT]:
                 new_pos = head + dir
@@ -84,6 +86,15 @@ def part1(file):
                     new_trails.append(new_trail)
                     visited.add(new_pos)
         trails = new_trails
+    return length
+
+
+def read_map_from_file(file):
+    map = []
+    for line in read_file_lines(file):
+        map.append(line)
+    map = Map(map, len(map[0]), len(map))
+    return map
 
 
 def part2(file):
