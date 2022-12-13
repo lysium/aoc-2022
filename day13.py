@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import functools
 import sys
+
+import util
 from util import read_file_lines
 from dataclasses import dataclass
 from anytree import NodeMixin
@@ -39,29 +41,13 @@ def parse_line(line):
 def compare(l1, l2, lev=0):
     debug(f"{'  ' * lev}compare {l1}, {l2}")
     if l1.__class__ == int and l2.__class__ == int:
-        if l1 < l2:
-            return -1
-        elif l1 == l2:
-            return 0
-        else:
-            return 1
+        return util.signum(l1 - l2)
     elif l1.__class__ == list and l2.__class__ == list:
         for i in range(min(len(l1), len(l2))):
-            a1 = l1[i]
-            a2 = l2[i]
-            res = compare(a1, a2, lev+1)
-            if res == 0:
-                pass
-            elif res < 0:
-                return -1
-            else:
-                return 1
-        if len(l1) < len(l2):
-            return -1
-        elif len(l1) > len(l2):
-            return 1
-        else:
-            return 0
+            res = compare(l1[i], l2[i], lev + 1)
+            if res != 0:
+                return res
+        return util.signum(len(l1) - len(l2))
     elif l1.__class__ == int:
         return compare([l1], l2, lev+1)
     elif l2.__class__ == int:

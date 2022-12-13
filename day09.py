@@ -2,7 +2,7 @@ from __future__ import annotations
 import sys
 
 from pos import Pos
-from util import read_file_lines
+from util import read_file_lines, signum
 from enum import Enum
 import os
 import re
@@ -36,14 +36,6 @@ def move(pos: Pos, dir: Direction):
 
 def is_adjacent(pos1, pos2):
     return abs(pos1.x - pos2.x) <= 1 and abs(pos1.y - pos2.y) <= 1
-
-
-def signum(x):
-    if x > 0:
-        return 1
-    if x < 0:
-        return -1
-    return 0
 
 
 def move_tail(head, tail):
