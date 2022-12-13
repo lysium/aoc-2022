@@ -22,13 +22,17 @@ def part2(file):
         pass
 
 
-if __name__ == "__main__":
-    this_script_name = os.path.basename(sys.argv[0])
+def input_file_from_argv(argv):
+    this_script_name = os.path.basename(argv[0])
     m = re.search('(\\d+)\\.py', this_script_name)
-    if len(sys.argv) <= 1 and m:
+    if len(argv) <= 1 and m:
         day = int(m.group(1))
-        input_file = f"input{day:02}.txt"
+        return f"input{day:02}.txt"
     else:
-        input_file = sys.argv[1]
+        return argv[1]
 
+
+
+if __name__ == "__main__":
+    input_file = input_file_from_argv(sys.argv)
     main(input_file)
