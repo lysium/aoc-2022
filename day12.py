@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import os
 import re
 from pos import Pos
-from vec import Vec
+from vec import Vec, UP, DOWN, LEFT, RIGHT
 
 
 def main(file):
@@ -40,12 +40,6 @@ class Map:
         elif height == Map.END:
             height = 'z'
         return ord(height) - ord('a')
-
-
-UP = Vec(0, -1)
-DOWN = Vec(0, 1)
-LEFT = Vec(-1, 0)
-RIGHT = Vec(1, 0)
 
 
 def find_start(map):
