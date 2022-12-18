@@ -132,7 +132,7 @@ def part1(file):
                 no_shapes_landed += 1
                 for rock in shape.rocks:
                     occupied.add(shape_pos + rock)
-                    occupied_rocks[shape_pos + rock] = chr(ord('A') + (no_shapes_landed % 26))
+                    occupied_rocks[shape_pos + rock] = chr(ord('A') + next_shape)
                 max_height = max([p.y for p in occupied])
                 if debug and no_shapes_landed <= 2:
                     print()
