@@ -74,7 +74,7 @@ def part2(droplets):
         droplets_lu.add(droplet)
     start_droplet = (mins[0], mins[1], mins[2])
     water = [start_droplet]
-    has_water = {start_droplet}
+    is_water = {start_droplet}
     surface = 0
     while water:
         water_droplet = water.pop(0)
@@ -82,12 +82,8 @@ def part2(droplets):
                       (0,1,0), (0,-1,0),
                       (0,0,1), (0,0,-1)]:
             neighbor = (water_droplet[0] + delta[0], water_droplet[1] + delta[1], water_droplet[2] + delta[2])
-            is_already_water = neighbor in has_water
-            is_in_bounds = True
-            for dim in range(3):
-                if not (mins[dim] <= neighbor[dim] <= maxs[dim]):
-                    is_in_bounds = False
-                    break
+            is_already_water = neighbor in is_water
+            is_in_bounds = check_if_in_bounds(neighbor, mins, maxs)
 
             if not is_already_water and is_in_bounds:
                 if neighbor in droplets_lu:
@@ -95,9 +91,17 @@ def part2(droplets):
                     surface += 1
                 else:
                     water.append(neighbor)
-                    has_water.add(neighbor)
+                    is_water.add(neighbor)
     print(surface)
 
+
+def check_if_in_bounds(voxel, mins, maxs):
+    is_in_bounds = True
+    for dim in range(3):
+        if not (mins[dim] <= voxel[dim] <= maxs[dim]):
+            is_in_bounds = False
+            break
+    return is_in_bounds
 
 
 def input_file_from_argv(argv):
