@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import math
 import sys
 from util import read_file_lines
 from dataclasses import dataclass
@@ -16,16 +17,16 @@ def debug(args):
 
 
 def main(file):
-    part1(file)
-    part2(file)
-
-
-def part1(file):
     droplets=[]
     for line in read_file_lines(file):
         droplet = [int(n) for n in line.split(',')]
-        droplets.append(droplet)
+        droplets.append(tuple(droplet))
     debug(len(droplets))
+    part1(droplets)
+    part2(droplets)
+
+
+def part1(droplets):
 
     # group by x,y
     debug("== 0, 1 ==")
@@ -61,9 +62,42 @@ def count_neighbors(droplets, dim1, dim2, dim3):
     return neighbors
 
 
-def part2(file):
-    for line in read_file_lines(file):
-        pass
+def part2(droplets):
+    mins = [math.inf for _ in range(3)]
+    maxs = [-math.inf for _ in range(3)]
+    for dim in range(3):
+        mins[dim] = min([d[dim] for d in droplets])-1
+        maxs[dim] = max([d[dim] for d in droplets])+1
+        debug(f"min{dim}: ({mins[dim], maxs[dim]})")
+    droplets_lu = set()
+    for droplet in droplets:
+        droplets_lu.add(droplet)
+    start_droplet = (mins[0], mins[1], mins[2])
+    water = [start_droplet]
+    has_water = {start_droplet}
+    surface = 0
+    while water:
+        water_droplet = water.pop(0)
+        for delta in [(-1,0,0), (1,0,0),
+                      (0,1,0), (0,-1,0),
+                      (0,0,1), (0,0,-1)]:
+            neighbor = (water_droplet[0] + delta[0], water_droplet[1] + delta[1], water_droplet[2] + delta[2])
+            is_already_water = neighbor in has_water
+            is_in_bounds = True
+            for dim in range(3):
+                if not (mins[dim] <= neighbor[dim] <= maxs[dim]):
+                    is_in_bounds = False
+                    break
+
+            if not is_already_water and is_in_bounds:
+                if neighbor in droplets_lu:
+                    debug(f"hit {neighbor} from {water_droplet} via {delta}")
+                    surface += 1
+                else:
+                    water.append(neighbor)
+                    has_water.add(neighbor)
+    print(surface)
+
 
 
 def input_file_from_argv(argv):
