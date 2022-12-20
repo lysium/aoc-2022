@@ -60,26 +60,10 @@ def decrypt(file, decryption_key, rounds):
             steps = number.n
             insert_here = number.prev
             remove(number)
-            if steps > 0:
-                for i in range(steps % (length-1)):
-                    insert_here = insert_here.next
-                debug(f"{number.n} moves between {insert_here.n} and {insert_here.next.n}")
-                insert_after(number, insert_here)
-                if do_debug:
-                    print_numbers(numbers[0])
-            elif steps < 0:
-                for i in range((-steps) % (length-1)):
-                    insert_here = insert_here.prev
-                debug(f"{number.n} moves between {insert_here.n} and {insert_here.next.n}")
-                insert_after(number, insert_here)
-                if do_debug:
-                    print_numbers(numbers[0])
-            elif steps == 0:
-                debug(f"0 does not move:")
-                insert_after(number, insert_here)
-                if do_debug:
-                    print_numbers(numbers[0])
-                pass
+            steps = steps % (length - 1)
+            for i in range(steps):
+                insert_here = insert_here.next
+            insert_after(number, insert_here)
 
     zero = numbers[0]
     while zero.n != 0:
