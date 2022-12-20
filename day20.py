@@ -105,8 +105,48 @@ def part1(file):
 
 
 def part2(file):
-    for line in read_file_lines(file):
-        pass
+    decryption_key = 811589153
+    numbers = [Number(int(line) * decryption_key) for line in read_file_lines(file)]
+    length = len(numbers)
+    for i in range(0, length):
+        numbers[i].prev = numbers[i - 1]
+        numbers[i].next = numbers[(i + 1) % length]
+
+    for _ in range(10):
+        for number in numbers:
+            steps = number.n
+            insert_here = number.prev
+            remove(number)
+            if steps > 0:
+                for i in range(steps % (length-1)):
+                    insert_here = insert_here.next
+                debug(f"{number.n} moves between {insert_here.n} and {insert_here.next.n}")
+                insert_after(number, insert_here)
+                if do_debug:
+                    print_numbers(numbers[0])
+            elif steps < 0:
+                for i in range((-steps) % (length-1)):
+                    insert_here = insert_here.prev
+                debug(f"{number.n} moves between {insert_here.n} and {insert_here.next.n}")
+                insert_after(number, insert_here)
+                if do_debug:
+                    print_numbers(numbers[0])
+            elif steps == 0:
+                debug(f"0 does not move:")
+                insert_after(number, insert_here)
+                if do_debug:
+                    print_numbers(numbers[0])
+                pass
+
+    zero = numbers[0]
+    while zero.n != 0:
+        zero = zero.next
+    coordinates = []
+    for _ in range(3):
+        for _ in range(1000):
+            zero = zero.next
+        coordinates.append(zero.n)
+    print(coordinates, sum(coordinates))
 
 
 def input_file_from_argv(argv):
