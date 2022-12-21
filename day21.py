@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import operator
 import sys
+from typing import Callable
+
 from util import read_file_lines
 from dataclasses import dataclass
 import os
@@ -14,9 +16,14 @@ def debug(args=None, end='\n'):
         print(args, end=end)
 
 
+# A monkey is either
+# - a constant
+# - an operation on two monkeys
+# Upon construction, we don't have all monkey objects, so we use their id (str) to refer to them
+MonkeyID = str
 @dataclass(frozen=True)
 class Monkey:
-    name:str
+    name: MonkeyID
 
 @dataclass(frozen=True)
 class MonkeyConst(Monkey):
@@ -24,8 +31,8 @@ class MonkeyConst(Monkey):
 
 @dataclass(frozen=True)
 class MonkeyOp(Monkey):
-    op: str
-    operands: [str]
+    op: Callable[[int, int], int]
+    operands: [MonkeyID]
 
 
 def calculate_result(monkeys, results_cache, monkey_name):
@@ -38,19 +45,23 @@ def calculate_result(monkeys, results_cache, monkey_name):
             return results_cache[monkey]
         elif isinstance(monkey, MonkeyOp):
             op1, op2 = [calculate_result(monkeys, results_cache, op) for op in monkey.operands]
-            if monkey.op == "*":
-                op = operator.mul
-            elif monkey.op == "/":
-                op = operator.truediv
-            elif monkey.op == "+":
-                op = operator.add
-            elif monkey.op == "-":
-                op = operator.sub
-            else:
-                raise Exception(f"unknown operator in {monkey_name}")
-            result = op(op1, op2)
+            result = monkey.op(op1, op2)
             results_cache[monkey_name] = result
             return result
+
+def operator_from_sym(op):
+    if op == "*":
+        op = operator.mul
+    elif op == "/":
+        op = operator.truediv
+    elif op == "+":
+        op = operator.add
+    elif op == "-":
+        op = operator.sub
+    else:
+        raise Exception(f"unknown operator symbol {op}")
+    return op
+
 
 def main(file):
     pattern = "(\w\w\w\w): (\d+|(\w\w\w\w) ([-+*/]) (\w\w\w\w))"
@@ -62,7 +73,7 @@ def main(file):
             name = m.group(1)
             if m.group(5) is not None:
                 monkey1, op, monkey2 = m.group(3), m.group(4), m.group(5)
-                monkey = MonkeyOp(name, op, [monkey1, monkey2])
+                monkey = MonkeyOp(name, operator_from_sym(op), [monkey1, monkey2])
             else:
                 const = int(m.group(2))
                 monkey = MonkeyConst(name, const)
@@ -108,16 +119,16 @@ def calculate_humn_result(monkeys, results_cache, monkey_name, expected_result):
         # first, suppose humn is left:
         right_result = results_cache[right]
         new_expected_result = None
-        if monkey.op == '+':
+        if monkey.op == operator.add:
             # x + right = expected -> x = expected - right
             new_expected_result = expected_result - right_result
-        elif monkey.op == '-':
+        elif monkey.op == operator.sub:
             # x - right = expected -> x = expected + right
             new_expected_result = expected_result + right_result
-        elif monkey.op == '*':
+        elif monkey.op == operator.mul:
             # x * right = expceted -> x = expcted / right
             new_expected_result = expected_result / right_result
-        elif monkey.op == '/':
+        elif monkey.op == operator.truediv:
             # x / right = expected -> x = expected * right
             new_expected_result = expected_result * right_result
         result_if_humn_is_left = calculate_humn_result(monkeys, results_cache, left, new_expected_result)
@@ -126,16 +137,16 @@ def calculate_humn_result(monkeys, results_cache, monkey_name, expected_result):
         else:
             # ok, humn wasn't left, so let's suppose humn is right:
             left_result = results_cache[left]
-            if monkey.op == '+':
+            if monkey.op == operator.add:
                 # left + x = expected -> x = expected - left
                 new_expected_result = expected_result - left_result
-            elif monkey.op == '-':
+            elif monkey.op == operator.sub:
                 # left - x = expected -> x = left - expected
                 new_expected_result = left_result - expected_result
-            elif monkey.op == '*':
+            elif monkey.op == operator.mul:
                 # left * x = expceted -> x = expcted / left
                 new_expected_result = expected_result / left_result
-            elif monkey.op == '/':
+            elif monkey.op == operator.truediv:
                 # left / x = expected -> x = left / expected
                 new_expected_result = left_result / expected_result
             result_if_humn_is_right = calculate_humn_result(monkeys, results_cache, right, new_expected_result)
