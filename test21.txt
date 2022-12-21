@@ -2,10 +2,10 @@ root: pppw + sjmn
 cst1: 5
 cczh: cst7 + lgvd
 cst2: 2
-ptdq: cst5 - cst3
+ptdq: humn - cst3
 cst3: 3
 cst9: 4
-cst5: 5
+humn: 5
 cst6: 2
 sjmn: drzm * cst1
 cst7: 4

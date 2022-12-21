@@ -89,12 +89,6 @@ def test_topsort():
     assert set(result[4:7]) == {'+', '*', '/'}
 
 def part1(file):
-    """
-bwmv: 19
-dbdl: mjtf * zqpw
-bznb: ntgb * rmvp
-mdzc: jhmp / rsml
-    """
     pattern = "(\w\w\w\w): (\d+|(\w\w\w\w) ([-+*/]) (\w\w\w\w))"
     monkeys = {}
     for line in read_file_lines(file):
@@ -118,8 +112,6 @@ mdzc: jhmp / rsml
         if isinstance(monkey, MonkeyOp):
             g.AddEdge(monkey.name, monkey.operands[0])
             g.AddEdge(monkey.name, monkey.operands[1])
-
-
 
     topsort = []
     g.Traverse(lambda name: topsort.append(name))
@@ -148,6 +140,79 @@ mdzc: jhmp / rsml
 
     print(results['root'])
 
+    root = monkeys['root']
+    left = root.operands[0]
+    right = root.operands[1]
+    if contains(monkeys, "humn", left):
+        human_tree = left
+        expected = right
+    else:
+        human_tree = right
+        expected = left
+    expected_result = results[expected]
+
+    print(f'expected result: {expected_result}')
+    result = part2x(human_tree, expected_result, monkeys, results)
+    print(f'humn yells {result}')
+
+
+def contains(monkeys, monkey_name, tree):
+    if tree == monkey_name:
+        return True
+    monkey = monkeys[tree]
+    if isinstance(monkey, MonkeyConst):
+        return monkey.name == monkey_name
+    elif isinstance(monkey, MonkeyOp):
+        return contains(monkeys, monkey_name, monkey.operands[0]) or contains(monkeys, monkey_name, monkey.operands[1])
+
+def part2x(node, expected_result, monkeys, results):
+    monkey = monkeys[node]
+    if isinstance(monkey, MonkeyConst):
+        if node == "humn":
+            return expected_result
+        else:
+            return False
+    elif isinstance(monkey, MonkeyOp):
+        left, right = monkey.operands
+        # first, humn is left:
+        right_result = results[right]
+        new_expected_result = None
+        if monkey.op == '+':
+            # x + right = expected -> x = expected - right
+            new_expected_result = expected_result - right_result
+        elif monkey.op == '-':
+            # x - right = expected -> x = expected + right
+            new_expected_result = expected_result + right_result
+        elif monkey.op == '*':
+            # x * right = expceted -> x = expcted / right
+            new_expected_result = expected_result / right_result
+        elif monkey.op == '/':
+            # x / right = expected -> x = expected * right
+            new_expected_result = expected_result * right_result
+        test_left = part2x(left, new_expected_result, monkeys, results)
+        if test_left:
+            return test_left
+        else:
+            # then suppose humn is right:
+            # elif right == "humn":
+            left_result = results[left]
+            if monkey.op == '+':
+                # left + x = expected -> x = expected - left
+                new_expected_result = expected_result - left_result
+            elif monkey.op == '-':
+                # left - x = expected -> x = left - expected
+                new_expected_result = left_result - expected_result
+            elif monkey.op == '*':
+                # left * x = expceted -> x = expcted / left
+                new_expected_result = expected_result / left_result
+            elif monkey.op == '/':
+                # left / x = expected -> x = left / expected
+                new_expected_result = left_result / expected_result
+            test_right =  part2x(right, new_expected_result, monkeys, results)
+            if test_right:
+                return test_right
+            else:
+                return False
 
 
 def part2(file):
@@ -163,7 +228,6 @@ def input_file_from_argv(argv):
         return f"input{day:02}.txt"
     else:
         return argv[1]
-
 
 
 if __name__ == "__main__":
