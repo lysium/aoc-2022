@@ -4,56 +4,14 @@ import operator
 import sys
 from util import read_file_lines
 from dataclasses import dataclass
-from anytree import NodeMixin
 import os
 import re
-from collections import deque, defaultdict
 
 do_debug = False
 
 def debug(args=None, end='\n'):
     if do_debug:
         print(args, end=end)
-
-### adapted from https://algotree.org/algorithms/tree_graph_traversal/topological_sort/
-class Graph :
-
-    def __init__(self, nodes : [str]) :
-        self.nodes = nodes
-        self.visited = set()
-        # The default dictionary would create an empty list as a default (value)
-        # for the nonexistent keys.
-        self.adjlist = defaultdict(list)
-        self.stack  = deque()
-
-    def AddEdge(self, src : str, dst : str) :
-        self.adjlist[src].append(dst)
-
-    def TopologicalSort(self, src : str) :
-
-        self.visited.add(src)
-
-        # Check if there is an outgoing edge for a node in the adjacency list
-        for node in self.adjlist[src] :
-            if not (node in self.visited):
-                self.TopologicalSort(node)
-
-        # Only after all the nodes on the outgoing edges are visited push the
-        # source node in the stack
-        self.stack.append(src)
-
-    def Traverse(self, op) :
-        has_edges = set(self.adjlist.keys())
-        for node in set(self.nodes).difference(has_edges):
-            if not (node in self.visited):
-                self.TopologicalSort(node)
-        for node in self.nodes:
-            if not (node in self.visited):
-               self.TopologicalSort(node)
-
-        while self.stack :
-            arg = self.stack.popleft()
-            op(arg)
 
 
 def main(file):
@@ -75,18 +33,31 @@ class MonkeyOp(Monkey):
     operands: [str]
 
 
-def test_topsort():
-    g = Graph(sorted(['12', '13', '15', '+', '*', '/', '18']))
-    g.AddEdge('+', '13')
-    g.AddEdge('+', '13')
-    g.AddEdge('*', '+')
-    g.AddEdge('*', '12')
-    g.AddEdge('/', '*')
-    g.AddEdge('/', '18')
-    result = []
-    g.Traverse(lambda x: result.append(x))
-    assert set(result[0:4]) == {'15', '12', '18', '13'}
-    assert set(result[4:7]) == {'+', '*', '/'}
+def calculate_result(monkeys, results_cache, monkey_name):
+    if monkey_name in results_cache:
+        return results_cache[monkey_name]
+    else:
+        monkey = monkeys[monkey_name]
+        if isinstance(monkey, MonkeyConst):
+            results_cache[monkey] = monkey.const
+            return results_cache[monkey]
+        elif isinstance(monkey, MonkeyOp):
+            op1, op2 = [calculate_result(monkeys, results_cache, op) for op in monkey.operands]
+            if monkey.op == "*":
+                op = operator.mul
+            elif monkey.op == "/":
+                op = operator.truediv
+            elif monkey.op == "+":
+                op = operator.add
+            elif monkey.op == "-":
+                op = operator.sub
+            else:
+                raise Exception(f"unknown operator in {monkey_name}")
+            result = op(op1, op2)
+            results_cache[monkey_name] = result
+            return result
+
+
 
 def part1(file):
     pattern = "(\w\w\w\w): (\d+|(\w\w\w\w) ([-+*/]) (\w\w\w\w))"
@@ -106,39 +77,9 @@ def part1(file):
         else:
             debug(f'{line}: NO MATCH')
 
-    g = Graph(monkeys.keys())
-
-    for monkey in monkeys.values():
-        if isinstance(monkey, MonkeyOp):
-            g.AddEdge(monkey.name, monkey.operands[0])
-            g.AddEdge(monkey.name, monkey.operands[1])
-
-    topsort = []
-    g.Traverse(lambda name: topsort.append(name))
-    results = dict([(monkey.name, monkey.const) for monkey in monkeys.values() if isinstance(monkey, MonkeyConst)])
-    for key in results.keys():
-        debug(f' -> {key}: {results[key]}', end=', ')
-    debug()
-    for name in topsort:
-        monkey = monkeys[name]
-        debug(f'-> {name}: {monkey}')
-        if isinstance(monkey, MonkeyConst):
-            results[name] = monkey.const
-        elif isinstance(monkey, MonkeyOp):
-            if monkey.op == "*":
-                op = operator.mul
-            elif monkey.op == "/":
-                op = operator.truediv
-            elif monkey.op == "+":
-                op = operator.add
-            elif monkey.op == "-":
-                op = operator.sub
-            else:
-                raise Exception(f'unknown op {monkey.op} in {name}')
-            operand1, operand2 = monkey.operands
-            results[name] = op(results[operand1], results[operand2])
-
-    print(results['root'])
+    results_cache = dict([(monkey.name, monkey.const) for monkey in monkeys.values() if isinstance(monkey, MonkeyConst)])
+    calculate_result(monkeys, results_cache, 'root')
+    print(results_cache['root'])
 
     root = monkeys['root']
     left = root.operands[0]
@@ -149,10 +90,10 @@ def part1(file):
     else:
         human_tree = right
         expected = left
-    expected_result = results[expected]
+    expected_result = results_cache[expected]
 
     print(f'expected result: {expected_result}')
-    result = part2x(human_tree, expected_result, monkeys, results)
+    result = part2x(human_tree, expected_result, monkeys, results_cache)
     print(f'humn yells {result}')
 
 
