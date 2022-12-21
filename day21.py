@@ -14,11 +14,6 @@ def debug(args=None, end='\n'):
         print(args, end=end)
 
 
-def main(file):
-    part1(file)
-    part2(file)
-
-
 @dataclass(frozen=True)
 class Monkey:
     name:str
@@ -57,9 +52,7 @@ def calculate_result(monkeys, results_cache, monkey_name):
             results_cache[monkey_name] = result
             return result
 
-
-
-def part1(file):
+def main(file):
     pattern = "(\w\w\w\w): (\d+|(\w\w\w\w) ([-+*/]) (\w\w\w\w))"
     monkeys = {}
     for line in read_file_lines(file):
@@ -76,47 +69,44 @@ def part1(file):
             monkeys[name] = monkey
         else:
             debug(f'{line}: NO MATCH')
-
     results_cache = dict([(monkey.name, monkey.const) for monkey in monkeys.values() if isinstance(monkey, MonkeyConst)])
     calculate_result(monkeys, results_cache, 'root')
     print(results_cache['root'])
-
-    root = monkeys['root']
-    left = root.operands[0]
-    right = root.operands[1]
-    if contains(monkeys, "humn", left):
+    # part 2
+    root_monkey = monkeys['root']
+    left, right = root_monkey.operands
+    if contains(monkeys, left, "humn"):
         human_tree = left
         expected = right
     else:
         human_tree = right
         expected = left
     expected_result = results_cache[expected]
-
-    print(f'expected result: {expected_result}')
-    result = part2x(human_tree, expected_result, monkeys, results_cache)
+    debug(f'expected result: {expected_result}')
+    result = calculate_humn_result(monkeys, results_cache, human_tree, expected_result)
     print(f'humn yells {result}')
 
 
-def contains(monkeys, monkey_name, tree):
-    if tree == monkey_name:
+def contains(monkeys, tree_starting_at_name, monkey_name):
+    if tree_starting_at_name == monkey_name: # shortcut
         return True
-    monkey = monkeys[tree]
+    monkey = monkeys[tree_starting_at_name]
     if isinstance(monkey, MonkeyConst):
         return monkey.name == monkey_name
     elif isinstance(monkey, MonkeyOp):
-        return contains(monkeys, monkey_name, monkey.operands[0]) or contains(monkeys, monkey_name, monkey.operands[1])
+        return any([contains(monkeys, operand, monkey_name) for operand in monkey.operands])
 
-def part2x(node, expected_result, monkeys, results):
-    monkey = monkeys[node]
+def calculate_humn_result(monkeys, results_cache, monkey_name, expected_result):
+    monkey = monkeys[monkey_name]
     if isinstance(monkey, MonkeyConst):
-        if node == "humn":
+        if monkey_name == "humn":
             return expected_result
         else:
             return False
     elif isinstance(monkey, MonkeyOp):
         left, right = monkey.operands
-        # first, humn is left:
-        right_result = results[right]
+        # first, suppose humn is left:
+        right_result = results_cache[right]
         new_expected_result = None
         if monkey.op == '+':
             # x + right = expected -> x = expected - right
@@ -130,13 +120,12 @@ def part2x(node, expected_result, monkeys, results):
         elif monkey.op == '/':
             # x / right = expected -> x = expected * right
             new_expected_result = expected_result * right_result
-        test_left = part2x(left, new_expected_result, monkeys, results)
-        if test_left:
-            return test_left
+        result_if_humn_is_left = calculate_humn_result(monkeys, results_cache, left, new_expected_result)
+        if result_if_humn_is_left:
+            return result_if_humn_is_left
         else:
-            # then suppose humn is right:
-            # elif right == "humn":
-            left_result = results[left]
+            # ok, humn wasn't left, so let's suppose humn is right:
+            left_result = results_cache[left]
             if monkey.op == '+':
                 # left + x = expected -> x = expected - left
                 new_expected_result = expected_result - left_result
@@ -149,16 +138,12 @@ def part2x(node, expected_result, monkeys, results):
             elif monkey.op == '/':
                 # left / x = expected -> x = left / expected
                 new_expected_result = left_result / expected_result
-            test_right =  part2x(right, new_expected_result, monkeys, results)
-            if test_right:
-                return test_right
+            result_if_humn_is_right = calculate_humn_result(monkeys, results_cache, right, new_expected_result)
+            if result_if_humn_is_right:
+                return result_if_humn_is_right
             else:
+                # humn was neither left nor right:
                 return False
-
-
-def part2(file):
-    for line in read_file_lines(file):
-        pass
 
 
 def input_file_from_argv(argv):
