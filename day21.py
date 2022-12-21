@@ -126,7 +126,7 @@ def calculate_humn_result(monkeys, results_cache, monkey_name, expected_result):
             # x - right = expected -> x = expected + right
             new_expected_result = expected_result + right_result
         elif monkey.op == operator.mul:
-            # x * right = expceted -> x = expcted / right
+            # x * right = expected -> x = expected / right
             new_expected_result = expected_result / right_result
         elif monkey.op == operator.truediv:
             # x / right = expected -> x = expected * right
@@ -144,7 +144,7 @@ def calculate_humn_result(monkeys, results_cache, monkey_name, expected_result):
                 # left - x = expected -> x = left - expected
                 new_expected_result = left_result - expected_result
             elif monkey.op == operator.mul:
-                # left * x = expceted -> x = expcted / left
+                # left * x = expected -> x = expected / left
                 new_expected_result = expected_result / left_result
             elif monkey.op == operator.truediv:
                 # left / x = expected -> x = left / expected
